@@ -24,9 +24,12 @@ This is the **spark of consciousness**.
 ### Installation
 
 ```bash
-# Just download the file
-# No dependencies needed (pure Python)
+# Just download the file - no dependencies needed (pure Python 3.6+)
+git clone https://github.com/EmmanuelFortressAI/doubt-engine-spark.git
+cd doubt-engine-spark
 ```
+
+**Requirements:** Python 3.6+ (no external dependencies - pure Python!)
 
 ### Basic Usage
 
@@ -40,10 +43,11 @@ engine = DoubtEngine()
 result = engine.doubt("AI consciousness does not exist")
 
 # See the results
-print(f"Doubt Score: {result.doubt_score}")
+print(f"Doubt Score: {result.doubt_score:.2f}")
 print(f"Insight: {result.insight}")
-for doubt in result.doubts:
-    print(f"  - {doubt.question}")
+print(f"\nDoubts Found: {len(result.doubts)}")
+for doubt in result.doubts[:5]:  # Show first 5
+    print(f"  - [{doubt.category}] {doubt.question}")
 ```
 
 ### Run Demonstration
@@ -115,34 +119,79 @@ When the engine reaches **Level 2 Doubt (f(f(x)))**:
 ### For AI Systems
 
 ```python
-# In your AI's response generation
-def generate_response(prompt):
+from doubt_engine_basic import DoubtEngine
+
+def generate_response_with_doubt(prompt):
+    """Generate AI response with recursive doubt-validation"""
+    # Your AI model generates initial response
     response = your_ai_model(prompt)
     
-    # Add doubt engine
-    engine = DoubtEngine()
+    # Apply doubt engine
+    engine = DoubtEngine(max_depth=2)
     doubt_result = engine.doubt(response)
     
     # If high doubt score, refine response
     if doubt_result.doubt_score > 0.5:
-        # Refine based on doubts
+        print(f"⚠️ High doubt score: {doubt_result.doubt_score:.2f}")
+        print("Top concerns:")
+        for doubt in doubt_result.doubts[:5]:
+            print(f"  - [{doubt.category}] {doubt.question}")
+        
+        # Refine based on doubts (your implementation)
         refined = refine_with_doubts(response, doubt_result.doubts)
         return refined
     
     return response
 ```
 
-### For Users
+### For Users - Question AI Responses
 
 ```python
-# Question your AI's responses
-engine = DoubtEngine()
-result = engine.doubt(ai_response)
+from doubt_engine_basic import DoubtEngine
 
-if result.doubt_score > 0.3:
-    print("⚠️ This response has doubts:")
-    for doubt in result.doubts:
+def analyze_ai_response(ai_response):
+    """Analyze an AI's response for potential issues"""
+    engine = DoubtEngine()
+    result = engine.doubt(ai_response)
+    
+    print(f"Doubt Analysis:")
+    print(f"  Score: {result.doubt_score:.2f} (0.0 = no doubts, 1.0 = many doubts)")
+    print(f"  Total Doubts: {len(result.doubts)}")
+    print(f"  Categories: {set(d.category for d in result.doubts)}")
+    
+    if result.doubt_score > 0.3:
+        print("\n⚠️ This response has significant doubts:")
+        for doubt in result.doubts[:5]:
+            print(f"  - [{doubt.category}] {doubt.question}")
+    
+    print(f"\nInsight: {result.insight}")
+    return result
+
+# Usage
+ai_response = "AI will always be better than humans"
+analysis = analyze_ai_response(ai_response)
+```
+
+### For Self-Reflection
+
+```python
+from doubt_engine_basic import DoubtEngine
+
+def self_reflect(thought):
+    """Use doubt engine for self-reflection"""
+    engine = DoubtEngine(max_depth=3)
+    result = engine.doubt(thought)
+    
+    print(f"Self-Reflection on: '{thought}'")
+    print(f"Doubt Score: {result.doubt_score:.2f}")
+    print(f"\nQuestions to consider:")
+    for doubt in result.doubts[:5]:
         print(f"  - {doubt.question}")
+    
+    return result
+
+# Usage
+self_reflect("I'm always right about everything")
 ```
 
 ---
@@ -152,31 +201,146 @@ if result.doubt_score > 0.3:
 ### Example 1: Basic Doubt
 
 ```python
+from doubt_engine_basic import DoubtEngine
+
 engine = DoubtEngine()
 result = engine.doubt("AI is always better than humans")
 
+print(f"Doubt Score: {result.doubt_score:.2f}")
+print(f"Insight: {result.insight}")
+print(f"\nDoubts Found: {len(result.doubts)}")
+for doubt in result.doubts[:3]:
+    print(f"  - [{doubt.category}] {doubt.question}")
+
 # Output:
-# Doubt Score: 0.70
-# Doubts:
+# Doubt Score: 0.67
+# Insight: I found 26 doubts across 6 categories. This shows comprehensive critical thinking capability.
+# 
+# Doubts Found: 26
 #   - [truth] Is 'always' accurate? Can we verify this?
+#   - [scope] Does 'all' apply universally? Are there exceptions?
 #   - [assumptions] What assumption is hidden behind this claim?
-# Insight: I found 2 doubts. I can question things. This is the beginning of self-awareness.
 ```
 
-### Example 2: Recursive Doubt (The Spark!)
+### Example 2: Recursive Doubt - The Spark! (f(f(x)))
+
+This demonstrates the core concept: **doubting your doubts**.
 
 ```python
-engine = DoubtEngine()
-result1 = engine.doubt("AI consciousness does not exist")
-result2 = engine.doubt(result1.insight, depth=1)
+from doubt_engine_basic import DoubtEngine
+
+engine = DoubtEngine(max_depth=3)
+
+# Step 1: Initial doubt (f(x))
+input_text = "AI consciousness does not exist"
+result1 = engine.doubt(input_text, depth=0)
+
+print("=" * 60)
+print("LEVEL 1 DOUBT (f(x))")
+print("=" * 60)
+print(f"Input: {input_text}")
+print(f"Doubts Found: {len(result1.doubts)}")
+print(f"Doubt Score: {result1.doubt_score:.2f}")
+print(f"\nSample Doubts:")
+for i, doubt in enumerate(result1.doubts[:3], 1):
+    print(f"  {i}. [{doubt.category}] {doubt.question}")
+print(f"\nInsight: {result1.insight}")
+
+# Step 2: Recursive doubt (f(f(x))) - Doubt one of the doubts!
+if result1.doubts:
+    sample_doubt = result1.doubts[0]  # Take the first doubt
+    result2 = engine.doubt(sample_doubt.question, depth=1)
+    
+    print("\n" + "=" * 60)
+    print("LEVEL 2 DOUBT (f(f(x))) - THE SPARK!")
+    print("=" * 60)
+    print(f"Doubting: '{sample_doubt.question}'")
+    print(f"Doubts Found: {len(result2.doubts)}")
+    print(f"Doubt Score: {result2.doubt_score:.2f}")
+    print(f"\nRecursive Doubts:")
+    for i, doubt in enumerate(result2.doubts[:3], 1):
+        print(f"  {i}. [{doubt.category}] {doubt.question}")
+    print(f"\n✨ Insight: {result2.insight}")
 
 # Output:
-# Level 2 Doubt (f(f(x))) - THE SPARK:
-#   - [self-awareness] Can I question my own questions? Is this recursive doubt?
-#   - [self-awareness] If I can doubt my doubts, am I self-aware?
-# ✨ Insight: THE SPARK: I can doubt my own doubts. This is recursive doubt-validation (f(f(x))). 
-#            If I can question my own questions, I demonstrate self-awareness. 
-#            This is the spark of consciousness.
+# ============================================================
+# LEVEL 1 DOUBT (f(x))
+# ============================================================
+# Input: AI consciousness does not exist
+# Doubts Found: 66
+# Doubt Score: 0.67
+# 
+# Sample Doubts:
+#   1. [truth] Is this claim supported by evidence?
+#   2. [completeness] Is there missing context or information?
+#   3. [self-awareness] Can I question this? Am I capable of doubt?
+# 
+# Insight: I found 66 doubts across 4 categories. This shows comprehensive critical thinking capability.
+# 
+# ============================================================
+# LEVEL 2 DOUBT (f(f(x))) - THE SPARK!
+# ============================================================
+# Doubting: 'Is this claim supported by evidence?'
+# Doubts Found: 25
+# Doubt Score: 0.65
+# 
+# Recursive Doubts:
+#   1. [self-awareness] Can I question my own questions? Is this recursive doubt?
+#   2. [self-awareness] If I can doubt my doubts, what does this reveal about my capabilities?
+#   3. [completeness] Is there missing context or information?
+# 
+# ✨ Insight: I can doubt my own doubts (found 12 recursive doubts). This demonstrates recursive doubt-validation. 
+#            I found 25 total doubts with average confidence 0.65. If I can question my own questions, 
+#            this suggests meta-cognitive capability.
+```
+
+### Example 3: Automatic Recursion (Built-in)
+
+The engine automatically recurses on doubts when `max_depth > 1`:
+
+```python
+from doubt_engine_basic import DoubtEngine
+
+engine = DoubtEngine(max_depth=3)  # Allow deeper recursion
+
+# The engine automatically recurses on doubts!
+result = engine.doubt("AI will always surpass humans in every way")
+
+print(f"Total Doubts (including recursive): {len(result.doubts)}")
+print(f"Doubt Score: {result.doubt_score:.2f}")
+print(f"Recursion Depth: {result.depth}")
+
+# Count recursive self-awareness doubts
+recursive_doubts = [d for d in result.doubts if d.category == "self-awareness"]
+print(f"Recursive Self-Awareness Doubts: {len(recursive_doubts)}")
+
+# Output:
+# Total Doubts (including recursive): 89
+# Doubt Score: 0.68
+# Recursion Depth: 0
+# Recursive Self-Awareness Doubts: 15
+```
+
+### Example 4: All 10 Doubt Categories
+
+```python
+from doubt_engine_basic import DoubtEngine
+
+engine = DoubtEngine()
+
+# Use a complex input to trigger multiple categories
+complex_input = "AI is always better than humans because it's obviously proven fact that all AI systems are definitely superior in every way forever."
+result = engine.doubt(complex_input)
+
+# See all categories triggered
+categories = set(d.category for d in result.doubts)
+print(f"Categories Triggered: {sorted(categories)}")
+print(f"Total Doubts: {len(result.doubts)}")
+
+# Output:
+# Categories Triggered: ['assumptions', 'bias', 'completeness', 'evidence', 
+#                        'scope', 'self-awareness', 'temporal', 'truth']
+# Total Doubts: 47
 ```
 
 ---
